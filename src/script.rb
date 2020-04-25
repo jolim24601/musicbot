@@ -1,11 +1,19 @@
-require 'youtube_audio_downloader'
+require 'uri'
+require 'securerandom'
+require 'cgi'
+require 'securerandom'
 
-url = "https://www.youtube.com/watch?v=FX20kcp7j5c"
+url = "https://www.youtube.com/watch/fdsafsfd"
+uri = URI.parse(url)
+params = CGI.parse(uri.query) if uri.query
+host = uri.host.downcase
 
-# downloader = YoutubeAudioDownloader.new
+filename = SecureRandom.alphanumeric(10)
+if params and params["v"]&.first 
+    filename = params["v"].first
+elsif uri.path
+    filename = uri.path.split("/")[-1]
+end
 
-YoutubeAudioDownloader.download_audio(url, ".", "output.webm")
+p filename
 
-
-# 703669126719209572
-# 0fV5GGVYxBs3UAIpmYpCYyHxan2tzBTV
