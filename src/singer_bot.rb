@@ -1,26 +1,28 @@
 require 'discordrb'
 require 'youtube_audio_downloader'
+require 'json'
 
-
-bot.message(with_text: 'Ping!') do |event|
-  event.respond 'Pong!'
-end
+file = File.read('info.json')
+info = JSON.parse(file)
+bot = Discordrb::Commands::CommandBot.new token: info["token"], client_id: 703699250042896566, prefix: 'Play '
 
 bot.command(:song) do |event, *args|
-    p args
-  # `event.voice` is a helper method that gets the correct voice bot on the server the bot is currently in. Since a
-  # bot may be connected to more than one voice channel (never more than one on the same server, though), this is
-  # necessary to allow the differentiation of servers.
-  #
-  # It returns a `VoiceBot` object that methods such as `play_file` can be called on.
+  p args
 
-#   YoutubeAudioDownloader.download_audio(args.first, ".", "music.webm")
+  url = args.first
+  next "You need to provide a song link" unless url
 
-  bot.voice_connect(event.author.voice_channel)
+  YoutubeAudioDownloader.download_audio(args.first, ".", "music.webm")
+  p "Done downloading audio"
 
-  voice_bot = event.voice
+  channel = event.author.voice_channel
+  next "You're not in any voice channel!" unless channel
+
+  p "Connecting to channel #{channel}"
+  voice_bot = bot.voice_connect(channel)
+
+  p "Playing audio"
   voice_bot.play_file('music.mp3')
 end
-
 
 bot.run
